@@ -30,6 +30,7 @@
 #include "G4RunManager.hh"
 #include "G4NistManager.hh"
 #include "G4Box.hh"
+#include "G4Tubs.hh"
 #include "G4Cons.hh"
 #include "G4Orb.hh"
 #include "G4Sphere.hh"
@@ -75,15 +76,20 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   //
   // Counter
 
-  G4Material* shape_mat = nist->FindOrBuildMaterial("G4_Cu");
-  G4double shape_sizeXY = 0.1 * world_sizeXY;
-  G4double shape_sizeZ  = 0.1 * world_sizeZ;
+  G4Material* shape_mat = nist->FindOrBuildMaterial("G4_SODIUM_IODIDE");
+
+  G4double shape_sizeXY = 2*cm;
+  G4double shape_sizeZ  = 2.5*cm;
   
   G4ThreeVector pos = G4ThreeVector(0, 0, shape_sizeZ/2);
 
   // Box
-  auto solidShape = new G4Box("Counter",       // its name
-    shape_sizeXY, shape_sizeXY, shape_sizeZ);  // its size
+  auto solidShape = new G4Tubs("Counter",       // its name
+			       0,
+			       shape_sizeXY,
+			       shape_sizeZ/2,
+			       0*deg,
+			       360*deg);
 
   auto logicShape = new G4LogicalVolume(solidShape,  // its solid
     shape_mat,                                       // its material
