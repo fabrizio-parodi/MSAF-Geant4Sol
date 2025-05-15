@@ -52,13 +52,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   // World
 
-  G4double sizeXY = 20*cm, sizeZ = 30*cm;
+  G4double sizeXY = 10*cm, sizeZ = 20*cm;
   G4double world_sizeXY = 1.2*sizeXY;
   G4double world_sizeZ  = 1.2*sizeZ;
   G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
 
-  auto solidWorld = new G4Box("World",                           // its name
-    world_sizeXY, world_sizeXY, world_sizeZ);  // its size
+  auto solidWorld = new G4Box("World",world_sizeXY, world_sizeXY, world_sizeZ);  // its size
   
   auto logicWorld = new G4LogicalVolume(solidWorld,  // its solid
     world_mat,                                       // its material
@@ -73,8 +72,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     0,                                         // copy number
     checkOverlaps);                            // overlaps checking
   
-  //
-  // Counter
+  // Scintillator
 
   G4Material* shape_mat = nist->FindOrBuildMaterial("G4_SODIUM_IODIDE");
 

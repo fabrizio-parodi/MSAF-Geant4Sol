@@ -28,7 +28,7 @@
 #include "RunAction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "DetectorConstruction.hh"
-// #include "Run.hh"
+
 
 #include "G4RunManager.hh"
 #include "G4Run.hh"
@@ -63,8 +63,10 @@ void RunAction::BeginOfRunAction(const G4Run*)
   accumulableManager->Reset();
 
   auto analysisManager = G4AnalysisManager::Instance();
+  
   // Open an output file
   analysisManager->OpenFile("output_geant4.root");
+  // Create ROOT histogram
   analysisManager->CreateH1("Etrue","Energy deposition",100,0,1*MeV);
 
 }
@@ -80,22 +82,10 @@ void RunAction::EndOfRunAction(const G4Run* run)
   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
   accumulableManager->Merge();
 
-  // Compute dose = total energy deposit in a run and its variance
-  //
-  G4double edep  = fEdep.GetValue();
-  G4double edep2 = fEdep2.GetValue();
-
-  G4double rms = edep2 - edep*edep/nofEvents;
-  if (rms > 0.) rms = std::sqrt(rms); else rms = 0.;
-
-  const auto detConstruction = static_cast<const DetectorConstruction*>(
-    G4RunManager::GetRunManager()->GetUserDetectorConstruction());
 
   // Run conditions
-  //  note: There is no primary generator action object for "master"
-  //        run manager for multi-threaded mode.
   const auto generatorAction = static_cast<const PrimaryGeneratorAction*>(
-    G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction());
+	  G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction());
   G4String runCondition;
   if (generatorAction){
     const G4ParticleGun* particleGun = generatorAction->GetParticleGun();

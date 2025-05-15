@@ -42,14 +42,14 @@
 
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(){
-  G4int n_particle = 1;
-  fParticleGun  = new G4ParticleGun(n_particle);
+
+  fParticleGun  = new G4ParticleGun(1); // 1 particle at the time
 
   // default particle kinematic
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  G4String particleName;
-  G4ParticleDefinition* particle = particleTable->FindParticle(particleName="gamma");
+  G4ParticleDefinition* particle = particleTable->FindParticle("gamma");
   fParticleGun->SetParticleDefinition(particle);
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
   fParticleGun->SetParticleEnergy(0.6617*MeV);
 }
 
@@ -73,8 +73,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
   G4double envSizeZ = 0;
 
   if (!fWorldBox){
-    G4LogicalVolume* worldLV
-      = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
+    G4LogicalVolume* worldLV = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
     if ( worldLV ) fWorldBox = dynamic_cast<G4Box*>(worldLV->GetSolid());
   }
 
@@ -94,7 +93,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
   G4double y0 = 0;
   G4double z0 = -envSizeZ/2;
 
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
   fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
   fParticleGun->GeneratePrimaryVertex(anEvent);
 
