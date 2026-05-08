@@ -50,19 +50,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   // Option to switch on/off checking of volumes overlaps
   G4bool checkOverlaps = true;
 
-  // World
-
-  G4double sizeXY = 10*cm, sizeZ = 20*cm;
-  G4double world_sizeXY = 1.2*sizeXY;
-  G4double world_sizeZ  = 1.2*sizeZ;
+  // World (Air)
+  G4double world_sizeXY = 20*cm;
+  G4double world_sizeZ  = 60*cm; 
   G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
 
+  // Box
   auto solidWorld = new G4Box("World",world_sizeXY, world_sizeXY, world_sizeZ);  // its size
-  
   auto logicWorld = new G4LogicalVolume(solidWorld,  // its solid
     world_mat,                                       // its material
     "World");                                        // its name
-  
   auto physWorld = new G4PVPlacement(nullptr,  // no rotation
     G4ThreeVector(),                           // at (0,0,0)
     logicWorld,                                // its logical volume
@@ -72,27 +69,23 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     0,                                         // copy number
     checkOverlaps);                            // overlaps checking
   
-  // Scintillator
-
-  G4Material* shape_mat = nist->FindOrBuildMaterial("G4_SODIUM_IODIDE");
-
+  // Scintillator (NaI)
   G4double shape_sizeXY = 2*cm;
   G4double shape_sizeZ  = 2.5*cm;
+  G4Material* shape_mat = nist->FindOrBuildMaterial("G4_SODIUM_IODIDE");
   
   G4ThreeVector pos = G4ThreeVector(0, 0, shape_sizeZ/2);
 
-  // Box
+  // Cilindro
   auto solidShape = new G4Tubs("Counter",       // its name
 			       0,
 			       shape_sizeXY,
 			       shape_sizeZ/2,
 			       0*deg,
 			       360*deg);
-
   auto logicShape = new G4LogicalVolume(solidShape,  // its solid
     shape_mat,                                       // its material
     "Counter");                                      // its name
-
   auto physShape  = new G4PVPlacement(nullptr,  // no rotation
     pos,                                        // at position
     logicShape,                                 // its logical volume

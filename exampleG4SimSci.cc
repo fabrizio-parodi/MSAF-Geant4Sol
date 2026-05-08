@@ -26,7 +26,7 @@
 //
 
 #include "DetectorConstruction.hh"
-#include "ActionInitialization.hh"
+//#include "ActionInitialization.hh"
 
 #include "G4RunManagerFactory.hh"
 #include "G4SteppingVerbose.hh"
@@ -37,7 +37,10 @@
 #include "G4UIExecutive.hh"
 #include "EventAction.hh"
 #include "RunAction.hh"
+#include "SteppingAction.hh"
 #include "PrimaryGeneratorAction.hh"
+
+#include "G4VUserActionInitialization.hh"
 
 #include "Randomize.hh"
 
@@ -45,6 +48,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int main(int argc,char** argv){
+  
   // Detect interactive mode (if no arguments) and define UI session
   G4UIExecutive* ui = nullptr;
   if ( argc == 1 ) { ui = new G4UIExecutive(argc, argv); }
@@ -54,21 +58,21 @@ int main(int argc,char** argv){
   G4SteppingVerbose::UseBestUnit(precision);
 
   // Construct the default run manager
-  auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
-
-  // Set mandatory initialization classes
+  auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Serial);
   
   // Detector construction
-  auto myDC = new DetectorConstruction();
-  runManager->SetUserInitialization(myDC);
+  runManager->SetUserInitialization(new DetectorConstruction());
 
   // Physics list
-  auto physicsList = new FTFP_BERT;
-  physicsList->SetVerboseLevel(1);
-  runManager->SetUserInitialization(physicsList);
+  runManager->SetUserInitialization(new FTFP_BERT);
 
   // User Initilization
-  runManager->SetUserInitialization(new ActionInitialization());
+  runManager->SetUserAction(new PrimaryGeneratorAction);
+  auto runAction = new RunAction;
+  runManager->SetUserAction(runAction);
+  auto evtAction = new EventAction(runAction);
+  runManager->SetUserAction(evtAction);
+  runManager->SetUserAction(new SteppingAction(evtAction));
 
   // Initialize visualization with the default graphics system
   auto visManager = new G4VisExecutive(argc, argv);
@@ -78,7 +82,6 @@ int main(int argc,char** argv){
   auto UImanager = G4UImanager::GetUIpointer();
 
   // Process macro or start UI session
-  //
   if ( ! ui ) {
     // batch mode
     G4String command = "/control/execute ";
@@ -87,6 +90,7 @@ int main(int argc,char** argv){
   } else {
     // interactive mode
     UImanager->ApplyCommand("/control/execute vis.mac");
+    UImanager->ApplyCommand("/run/beamOn 100000");
     ui->SessionStart();
     delete ui;
   }
